@@ -72,33 +72,33 @@ export const colors = {
   // Page type colors - more distinctive combinations
   pageTypes: {
     documentation: {
-      bg: 'bg-teal-50',
-      text: 'text-teal-800',
-      border: 'border-teal-200',
+      bg: 'bg-teal-100',
+      text: 'text-teal-900',
+      border: 'border-teal-300',
       hex: '#f0fdfa'
     },
     support: {
-      bg: 'bg-orange-50', 
-      text: 'text-orange-800',
-      border: 'border-orange-200',
+      bg: 'bg-orange-100', 
+      text: 'text-orange-900',
+      border: 'border-orange-300',
       hex: '#fff7ed'
     },
     community: {
-      bg: 'bg-purple-50',
-      text: 'text-purple-800', 
-      border: 'border-purple-200',
+      bg: 'bg-purple-100',
+      text: 'text-purple-900', 
+      border: 'border-purple-300',
       hex: '#faf5ff'
     },
     blog: {
-      bg: 'bg-amber-50',
-      text: 'text-amber-800',
-      border: 'border-amber-200', 
+      bg: 'bg-amber-100',
+      text: 'text-amber-900',
+      border: 'border-amber-300', 
       hex: '#fffbeb'
     },
     default: {
-      bg: 'bg-stone-50',
-      text: 'text-stone-800',
-      border: 'border-stone-200',
+      bg: 'bg-stone-100',
+      text: 'text-stone-900',
+      border: 'border-stone-300',
       hex: '#fafaf9'
     }
   }

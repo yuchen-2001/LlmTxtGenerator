@@ -33,6 +33,7 @@ const Input = ({
     ${sizeConfig[size]}
     ${getStateStyles()}
     ${Icon ? 'pl-10' : ''}
+    text-gray-800
     ${className}
   `.trim().replace(/\s+/g, ' ');
 

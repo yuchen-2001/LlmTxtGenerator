@@ -6,9 +6,9 @@ import { FileText, Sparkles, ExternalLink } from 'lucide-react';
 const Footer = () => {
   return (
     <div className="mt-16 text-center">
-      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-        <h4 className="text-lg font-semibold text-gray-900 mb-3">Learn More</h4>
-        <p className="text-gray-600 mb-4">
+      <div className="bg-white rounded-xl shadow-md p-7 border border-stone-200">
+        <h4 className="text-lg font-semibold text-stone-900 mb-3">Learn More</h4>
+        <p className="text-stone-600 mb-4">
           Discover how llms.txt can improve AI interactions with your website
         </p>
         
@@ -17,18 +17,18 @@ const Footer = () => {
             href="https://llmstxt.org/"
             icon={FileText}
             label="Official Specification"
-            bgColor="bg-indigo-50"
-            textColor="text-indigo-700"
-            hoverColor="hover:bg-indigo-100"
+            bgColor="bg-teal-50"
+            textColor="text-teal-700"
+            hoverColor="hover:bg-teal-100"
           />
           
           <FooterLink
             href="https://llmstxthub.com/guides/getting-started-llms-txt"
             icon={Sparkles}
             label="Getting Started Guide"
-            bgColor="bg-green-50"
-            textColor="text-green-700"
-            hoverColor="hover:bg-green-100"
+            bgColor="bg-orange-50"
+            textColor="text-orange-700"
+            hoverColor="hover:bg-orange-100"
           />
         </div>
       </div>

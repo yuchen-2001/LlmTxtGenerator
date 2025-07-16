@@ -292,16 +292,16 @@ const BulkOperationsBar = ({
         </Button>
         
         {showDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-stone-200 z-20">
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
             {categoryOptions.map((option) => {
               const Icon = option.icon;
               return (
                 <button
                   key={option.id}
                   onClick={() => onBulkCategoryChange(option.id)}
-                  className="w-full text-left px-4 py-3 hover:bg-stone-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center"
+                  className="w-full text-left px-4 py-3 hover:bg-teal-50 hover:text-teal-800 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center text-gray-700 font-medium"
                 >
-                  <Icon className="h-4 w-4 mr-3" />
+                  <Icon className="h-4 w-4 mr-3 text-teal-600" />
                   {option.name}
                 </button>
               );
