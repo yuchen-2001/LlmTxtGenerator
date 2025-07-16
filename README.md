@@ -4,7 +4,10 @@ A web application that helps create llms.txt files for websites to improve AI/LL
 
 The website analysis currently uses smart mock data generation based on domain patterns (since I focused primarily on frontend architecture and abstracted the backend complexity), but the API structure is designed to easily integrate real web crawling services.
 
-**Live Demo**: [live demo link](https://llms-txt-generator-demo.vercel.app)
+**Live Demo**: [live demo link](https://llm-txt-generator-tau.vercel.app/)
+
+## Full User Flow Demo
+![Full Demo](./assets/demos/fullDemo.gif)
 
 ## Tech Stack
 
@@ -57,4 +60,4 @@ npm start
 ![Drag Drop, Toast Notifications, and Output Formats](./assets/demos/DragDropAndOutput.gif)
 *Drag-and-drop reordering and output; Toast notifications for feedback; Multiple Output formats with download and copy options.*
 
-![Full Demo](./assets/demos/fullDemo.gif)
+
