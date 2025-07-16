@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import { getPageTypeColor } from '../design-system';
 
 const PageSelection = ({ 
   pages, 
@@ -109,13 +108,25 @@ const PageSelection = ({
     setSelectedForBulk(new Set(indices));
   };
 
+  // Updated color mapping function
+  const getCategoryColor = (category) => {
+    const colorMap = {
+      documentation: 'bg-teal-50 text-teal-800 border-teal-200',
+      support: 'bg-orange-50 text-orange-800 border-orange-200',
+      community: 'bg-purple-50 text-purple-800 border-purple-200',
+      blog: 'bg-amber-50 text-amber-800 border-amber-200',
+      default: 'bg-stone-50 text-stone-800 border-stone-200'
+    };
+    return colorMap[category] || colorMap.default;
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md p-7 border border-stone-200">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <div className="flex items-center">
-          <Database className="h-6 w-6 text-indigo-600 mr-3" />
-          <h3 className="text-2xl font-semibold text-gray-900">
+          <Database className="h-6 w-6 text-teal-600 mr-3" />
+          <h3 className="text-2xl font-semibold text-stone-900">
             Found Pages ({categoryFilteredPages.length})
           </h3>
         </div>
@@ -173,6 +184,7 @@ const PageSelection = ({
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onDragEnd={handleDragEnd}
+              getCategoryColor={getCategoryColor}
             />
           );
         })}
@@ -195,8 +207,8 @@ const PageSelection = ({
 
 // Sub-components
 const SelectedCounter = ({ selectedCount }) => (
-  <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+  <div className="flex items-center text-sm text-stone-600 bg-stone-50 px-3 py-2 rounded-lg">
+    <CheckCircle className="h-4 w-4 text-emerald-600 mr-2" />
     {selectedCount} selected
   </div>
 );
@@ -217,7 +229,7 @@ const BulkActions = ({ onSelectAll, onDeselectAll }) => (
     <Button variant="ghost" size="sm" onClick={onSelectAll}>
       Select All
     </Button>
-    <span className="text-gray-300">|</span>
+    <span className="text-stone-300">|</span>
     <Button variant="ghost" size="sm" onClick={onDeselectAll}>
       Clear All
     </Button>
@@ -238,7 +250,7 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => (
     <select 
       value={selectedCategory}
       onChange={(e) => onCategoryChange(e.target.value)}
-      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none bg-white"
+      className="w-full px-4 py-2.5 border-2 border-stone-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors appearance-none bg-white text-base"
     >
       {categories.map(category => (
         <option key={category.id} value={category.id}>
@@ -246,7 +258,7 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => (
         </option>
       ))}
     </select>
-    <ChevronDown className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+    <ChevronDown className="h-5 w-5 text-stone-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
   </div>
 );
 
@@ -258,9 +270,9 @@ const BulkOperationsBar = ({
   showDropdown,
   onToggleDropdown 
 }) => (
-  <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+  <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6 flex items-center justify-between">
     <div className="flex items-center space-x-4">
-      <span className="text-sm font-medium text-indigo-900">
+      <span className="text-sm font-medium text-teal-900">
         {selectedCount} pages selected for bulk edit
       </span>
       <Button variant="ghost" size="sm" onClick={onSelectAllInCategory}>
@@ -280,14 +292,14 @@ const BulkOperationsBar = ({
         </Button>
         
         {showDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-stone-200 z-20">
             {categoryOptions.map((option) => {
               const Icon = option.icon;
               return (
                 <button
                   key={option.id}
                   onClick={() => onBulkCategoryChange(option.id)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center"
+                  className="w-full text-left px-4 py-3 hover:bg-stone-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center"
                 >
                   <Icon className="h-4 w-4 mr-3" />
                   {option.name}
@@ -314,9 +326,10 @@ const DraggablePageCard = ({
   onDragStart,
   onDragOver,
   onDrop,
-  onDragEnd
+  onDragEnd,
+  getCategoryColor
 }) => {
-  const categoryColors = getPageTypeColor(page.category);
+  const categoryColors = getCategoryColor(page.category);
   
   return (
     <div
@@ -329,10 +342,10 @@ const DraggablePageCard = ({
         isDragging ? 'opacity-50 rotate-2 scale-105' : ''
       } ${
         isSelected
-          ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+          ? 'border-teal-500 bg-teal-50 shadow-sm'
           : isBulkSelected
           ? 'border-purple-500 bg-purple-50 shadow-sm'  
-          : 'border-gray-200 hover:border-gray-300'
+          : 'border-stone-200 hover:border-stone-300'
       }`}
       onClick={bulkMode ? onToggleBulk : onToggle}
     >
@@ -340,7 +353,7 @@ const DraggablePageCard = ({
         {/* Drag Handle */}
         {!bulkMode && (
           <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-            <GripVertical className="h-5 w-5 text-gray-400" />
+            <GripVertical className="h-5 w-5 text-stone-400" />
           </div>
         )}
         
@@ -352,7 +365,7 @@ const DraggablePageCard = ({
           className={`mt-1 h-5 w-5 rounded transition-colors ${
             bulkMode 
               ? 'text-purple-600 focus:ring-purple-500 border-purple-300'
-              : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+              : 'text-teal-600 focus:ring-teal-500 border-stone-300'
           }`}
         />
         
@@ -371,31 +384,31 @@ const DraggablePageCard = ({
 const PageHeader = ({ page, categoryColors }) => (
   <div className="flex items-center justify-between mb-2">
     <div className="flex items-center space-x-3">
-      <h4 className="text-lg font-semibold text-gray-900 truncate">
+      <h4 className="text-lg font-semibold text-stone-900 truncate">
         {page.title}
       </h4>
-      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${categoryColors.bg} ${categoryColors.text} ${categoryColors.border}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${categoryColors}`}>
         {page.category}
       </span>
     </div>
-    <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+    <ExternalLink className="h-4 w-4 text-stone-400 flex-shrink-0" />
   </div>
 );
 
 const PageUrl = ({ url }) => (
-  <p className="text-sm text-gray-500 mb-2 flex items-center">
+  <p className="text-sm text-stone-500 mb-2 flex items-center">
     <Globe className="h-3 w-3 mr-1" />
     {url}
   </p>
 );
 
 const PageDescription = ({ description }) => (
-  <p className="text-gray-600 leading-relaxed">{description}</p>
+  <p className="text-stone-600 leading-relaxed">{description}</p>
 );
 
 const PageMetadata = ({ lastModified }) => (
   lastModified && (
-    <p className="text-xs text-gray-400 mt-2">
+    <p className="text-xs text-stone-400 mt-2">
       Last modified: {lastModified}
     </p>
   )
@@ -403,9 +416,9 @@ const PageMetadata = ({ lastModified }) => (
 
 const EmptySearchState = ({ searchTerm, filterCategory, onClearFilters }) => (
   <div className="text-center py-12">
-    <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-    <h3 className="text-lg font-semibold text-gray-900 mb-2">No pages found</h3>
-    <p className="text-gray-600 mb-4">
+    <Search className="h-16 w-16 text-stone-300 mx-auto mb-4" />
+    <h3 className="text-lg font-semibold text-stone-900 mb-2">No pages found</h3>
+    <p className="text-stone-600 mb-4">
       {searchTerm || filterCategory !== 'all' 
         ? `No pages match your current filters.`
         : 'No pages available to display.'

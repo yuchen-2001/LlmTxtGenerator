@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# LLMs.txt Generator
 
-## Getting Started
+A web application that helps create llms.txt files for websites to improve AI/LLM compatibility. Built for Profound's Frontend Developer Task.
 
-First, run the development server:
+The website analysis currently uses smart mock data generation based on domain patterns (since I focused primarily on frontend architecture and abstracted the backend complexity), but the API structure is designed to easily integrate real web crawling services.
+
+**Live Demo**: [live demo link](https://llms-txt-generator-demo.vercel.app)
+
+## Tech Stack
+
+- **Frontend**: React 19, Next.js 15, Tailwind CSS
+- **Backend**: Next.js API Routes  
+- **Icons**: Lucide React
+- **Deployment**: Vercel
+
+## Quick Start
+
+### Requirements
+- Node.js 18+ 
+- npm
+
+### Run Locally
 
 ```bash
+# Clone the repo
+git clone 
+cd llms-txt-generator
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Build for Production
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Features Implemented
 
-## Learn More
+### Frontend Architecture
+- Component-based design
+- Custom design system with consistent theming
+- Responsive layout that works both on mobile and desktop
+- Loading states and error handling throughout
 
-To learn more about Next.js, take a look at the following resources:
+### User Experience
+- 3-second guaranteed loading animation for consistency
+- Real-time form validation with error messages
+- Toast notifications for feedback
+- Drag-and-drop page reordering
+- Bulk selection and category editing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
