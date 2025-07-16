@@ -289,27 +289,27 @@ const LLMSTxtGenerator = () => {
           {showPreview && pages.length > 0 && (
             <div className="space-y-8">
               {/* Enhanced Stats Summary with Analysis Info */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <div className="bg-white rounded-xl shadow-md p-7 border border-stone-200">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <StatCard 
                     label="Total Pages" 
                     value={stats.total}
-                    color="text-blue-600"
+                    color="text-teal-600"
                   />
                   <StatCard 
                     label="Selected" 
                     value={stats.selected}
-                    color="text-green-600"
+                    color="text-emerald-600"
                   />
                   <StatCard 
                     label="Documentation" 
                     value={stats.categories.documentation || 0}
-                    color="text-indigo-600"
+                    color="text-teal-700"
                   />
                   <StatCard 
                     label="Support" 
                     value={stats.categories.support || 0}
-                    color="text-purple-600"
+                    color="text-orange-600"
                   />
                 </div>
                 
@@ -322,9 +322,9 @@ const LLMSTxtGenerator = () => {
                       </span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         analysisMetadata.hasRealData 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
+                            ? 'bg-emerald-100 text-emerald-800' 
+                            : 'bg-teal-100 text-teal-800'
+                        }`}>
                         {analysisMetadata.hasRealData ? 'Real Data' : 'Smart Mock'}
                       </span>
                     </div>

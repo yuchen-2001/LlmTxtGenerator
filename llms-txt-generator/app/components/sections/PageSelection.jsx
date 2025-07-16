@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import { getCategoryColor } from '../design-system';
+import { getPageTypeColor } from '../design-system';
 
 const PageSelection = ({ 
   pages, 
@@ -316,7 +316,7 @@ const DraggablePageCard = ({
   onDrop,
   onDragEnd
 }) => {
-  const categoryColors = getCategoryColor(page.category);
+  const categoryColors = getPageTypeColor(page.category);
   
   return (
     <div

@@ -31,8 +31,8 @@ const Button = ({
   // Base styles - could probably optimize this - works fine for now
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
-  const sizeStyles = `${sizeConfig.padding} ${sizeConfig.fontSize} ${sizeConfig.gap} ${sizeConfig.minWidth || ''}`;
-  const variantStyles = `${variantConfig.base} ${variantConfig.hover} ${variantConfig.focus}`;
+  const sizeStyles = sizeConfig ? `${sizeConfig.padding} ${sizeConfig.fontSize} ${sizeConfig.borderRadius} ${sizeConfig.gap}` : 'px-4 py-2 text-base rounded-lg gap-2';
+  const variantStyles = variantConfig ? `${variantConfig.base} ${variantConfig.hover} ${variantConfig.focus}` : 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500';
   const fullWidthStyle = fullWidth ? 'w-full' : '';
   
   const buttonClasses = `${baseStyles} ${sizeStyles} ${variantStyles} ${fullWidthStyle} ${className}`;
