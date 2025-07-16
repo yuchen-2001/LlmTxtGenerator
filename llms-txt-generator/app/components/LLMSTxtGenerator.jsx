@@ -11,7 +11,7 @@ import UrlInput from './sections/UrlInput';
 import LoadingState from './sections/LoadingState';
 import SiteConfig from './sections/SiteConfig';
 import PageSelection from './sections/PageSelection';
-import Preview from './sections/Preview';
+import Preview from './sections/EnhancedPreview';
 import EmptyState from './sections/EmptyState';
 import Footer from './sections/Footer';
 
@@ -175,92 +175,47 @@ const LLMSTxtGenerator = () => {
     page.url.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Generate llms.txt content
-  const generateLLMSTxt = () => {
-    const selectedPagesData = pages.filter((_, index) => selectedPages.has(index));
-    
-    let content = `# ${siteName}\n> ${siteDescription}\n\n`;
-    
-    // Enhanced categorization
-    const categories = {
-      documentation: selectedPagesData.filter(page => 
-        page.category === 'documentation' || 
-        page.url.includes('/docs/') || 
-        page.title.toLowerCase().includes('doc') || 
-        page.title.toLowerCase().includes('guide') || 
-        page.title.toLowerCase().includes('api')
-      ),
-      support: selectedPagesData.filter(page => 
-        page.category === 'support' ||
-        page.url.includes('/support/') || 
-        page.url.includes('/help/') || 
-        page.title.toLowerCase().includes('faq') || 
-        page.title.toLowerCase().includes('support')
-      ),
-      blog: selectedPagesData.filter(page =>
-        page.category === 'blog' ||
-        page.url.includes('/blog/') ||
-        page.title.toLowerCase().includes('blog') ||
-        page.title.toLowerCase().includes('news')
-      ),
-      community: selectedPagesData.filter(page => 
-        page.category === 'community' ||
-        page.url.includes('/community/') || 
-        page.url.includes('/forum/') || 
-        page.title.toLowerCase().includes('community') || 
-        page.title.toLowerCase().includes('forum')
-      )
-    };
-
-    const other = selectedPagesData.filter(page => 
-      !Object.values(categories).some(cat => cat.includes(page))
-    );
-
-    // Generate sections
-    const sections = [
-      { title: 'Documentation', pages: categories.documentation },
-      { title: 'Support', pages: categories.support },
-      { title: 'Blog', pages: categories.blog },
-      { title: 'Resources', pages: other },
-      { title: 'Optional', pages: categories.community }
-    ];
-
-    sections.forEach(section => {
-      if (section.pages.length > 0) {
-        content += `## ${section.title}\n`;
-        section.pages.forEach(page => {
-          content += `- [${page.title}](${page.url}): ${page.description}\n`;
-        });
-        content += '\n';
-      }
-    });
-
-    return content;
+  // Get selected pages data
+  const getSelectedPagesData = () => {
+    return pages.filter((_, index) => selectedPages.has(index));
   };
 
-  // File operations
-  const downloadLLMSTxt = () => {
-    const content = generateLLMSTxt();
-    const blob = new Blob([content], { type: 'text/plain' });
+  // Enhanced file operations with format support
+  const handleDownload = (content, extension, format) => {
+    const blob = new Blob([content], { 
+      type: getContentType(format) 
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'llms.txt';
+    a.download = `llms.${extension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('File downloaded successfully!', 'success');
+    
+    const formatName = format.toUpperCase();
+    showToast(`${formatName} file downloaded successfully!`, 'success');
   };
 
-  const copyToClipboard = async () => {
+  const handleCopy = async (content, format) => {
     try {
-      const content = generateLLMSTxt();
       await navigator.clipboard.writeText(content);
-      showToast('Content copied to clipboard!', 'success');
+      const formatName = format.toUpperCase();
+      showToast(`${formatName} content copied to clipboard!`, 'success');
     } catch (err) {
       showToast('Failed to copy to clipboard', 'error');
     }
+  };
+
+  const getContentType = (format) => {
+    const contentTypes = {
+      txt: 'text/plain',
+      json: 'application/json',
+      yaml: 'application/x-yaml',
+      xml: 'application/xml'
+    };
+    return contentTypes[format] || 'text/plain';
   };
 
   return (
@@ -303,9 +258,11 @@ const LLMSTxtGenerator = () => {
               />
 
               <Preview
-                content={generateLLMSTxt()}
-                onCopy={copyToClipboard}
-                onDownload={downloadLLMSTxt}
+                siteName={siteName}
+                siteDescription={siteDescription}
+                selectedPagesData={getSelectedPagesData()}
+                onCopy={handleCopy}
+                onDownload={handleDownload}
               />
             </div>
           )}
