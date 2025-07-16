@@ -16,7 +16,7 @@ import EmptyState from './sections/EmptyState';
 import Footer from './sections/Footer';
 
 const LLMSTxtGenerator = () => {
-  // State management
+  // State management - could use useReducer
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
@@ -64,7 +64,7 @@ const LLMSTxtGenerator = () => {
     setAnalysisMetadata(null);
 
     try {
-      // Start the progressive loading animation with exact timing
+      // Runs parallel with API call for better UX
       // Total duration: 3 seconds, 4 stages = 750ms per stage
       const stageTimings = [750, 750, 750, 750]; // Each stage gets equal time
       let currentStage = 0;
@@ -100,8 +100,7 @@ const LLMSTxtGenerator = () => {
       // Clear the stage interval since backend timing is guaranteed
       clearInterval(stageInterval);
       
-      // Ensure we're at the final stage
-      setLoadingStage(3);
+      setLoadingStage(3); //ensure final stage is set
 
       if (!response.ok) {
         const errorData = await response.json();
