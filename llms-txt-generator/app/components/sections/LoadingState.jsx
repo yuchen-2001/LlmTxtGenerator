@@ -76,11 +76,11 @@ const LoadingState = ({ stage }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md p-7 mb-8 border border-stone-200">
       <div className="text-center">
         {/* Main Loading Animation */}
         <div className="relative mb-6">
-          <Loader2 className="h-16 w-16 animate-spin text-indigo-600 mx-auto" />
+          <Loader2 className="h-16 w-16 animate-spin text-teal-600 mx-auto" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="h-8 w-8 bg-white rounded-full"></div>
           </div>
@@ -88,10 +88,10 @@ const LoadingState = ({ stage }) => {
         
         {/* Title and Timer */}
         <div className="mb-2">
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-xl font-semibold text-stone-900">
             Analyzing Website
           </h3>
-          <div className="flex items-center justify-center mt-2 text-sm text-gray-500">
+          <div className="flex items-center justify-center mt-2 text-sm text-stone-500">
             <Clock className="h-4 w-4 mr-1" />
             <span>{formatTime(elapsedTime)}</span>
           </div>
@@ -99,7 +99,7 @@ const LoadingState = ({ stage }) => {
 
         {/* Dynamic Tips */}
         <div className="mb-6 h-12 flex items-center justify-center">
-          <p className="text-gray-600 text-sm max-w-md transition-opacity duration-500">
+          <p className="text-stone-600 text-sm max-w-md transition-opacity duration-500">
             {loadingTips[tips]}
           </p>
         </div>
@@ -125,20 +125,20 @@ const LoadingState = ({ stage }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div className="w-full bg-stone-200 rounded-full h-2 mb-4">
           <div 
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
+            className="bg-gradient-to-r from-teal-600 to-orange-500 h-2 rounded-full transition-all duration-300 ease-out"
             style={{ width: `${getProgressPercentage()}%` }}
           />
         </div>
 
         {/* Progress Percentage */}
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-stone-500">
           {Math.round(getProgressPercentage())}% Complete
         </div>
 
         {/* Expected completion time */}
-        <div className="mt-4 text-xs text-gray-400">
+        <div className="mt-4 text-xs text-stone-400">
           Analysis typically completes in 3 seconds
         </div>
       </div>
@@ -149,31 +149,31 @@ const LoadingState = ({ stage }) => {
 const StageItem = ({ icon: Icon, label, description, isActive, isCompleted }) => {
   const getStageStyles = () => {
     if (isActive) {
-      return 'bg-indigo-50 border-2 border-indigo-200 shadow-sm';
+      return 'bg-teal-50 border-2 border-teal-200 shadow-sm';
     }
     if (isCompleted) {
-      return 'bg-green-50 border-2 border-green-200 shadow-sm';
+      return 'bg-emerald-50 border-2 border-emerald-200 shadow-sm';
     }
-    return 'bg-gray-50 border-2 border-gray-200';
+    return 'bg-stone-50 border-2 border-stone-200';
   };
 
   const getTextStyles = () => {
-    if (isActive) return 'text-indigo-900';
-    if (isCompleted) return 'text-green-900';
-    return 'text-gray-500';
+    if (isActive) return 'text-teal-900';
+    if (isCompleted) return 'text-emerald-900';
+    return 'text-stone-500';
   };
 
   const getIconStyles = () => {
-    if (isActive) return 'text-indigo-600';
-    if (isCompleted) return 'text-green-600';
-    return 'text-gray-400';
+    if (isActive) return 'text-teal-600';
+    if (isCompleted) return 'text-emerald-600';
+    return 'text-stone-400';
   };
 
   return (
     <div className={`flex items-start p-3 rounded-lg transition-all duration-300 ${getStageStyles()}`}>
       <div className="flex-shrink-0 mr-3 mt-0.5">
         {isCompleted ? (
-          <CheckCircle className="h-5 w-5 text-green-600" />
+          <CheckCircle className="h-5 w-5 text-emerald-600" />
         ) : (
           <Icon className={`h-5 w-5 ${getIconStyles()}`} />
         )}
@@ -184,13 +184,13 @@ const StageItem = ({ icon: Icon, label, description, isActive, isCompleted }) =>
           <span className={`text-sm font-medium ${getTextStyles()}`}>
             {label}
           </span>
-          {isActive && <Loader2 className="h-4 w-4 animate-spin text-indigo-600 ml-2" />}
-          {isCompleted && <CheckCircle className="h-4 w-4 text-green-600 ml-2" />}
+          {isActive && <Loader2 className="h-4 w-4 animate-spin text-teal-600 ml-2" />}
+          {isCompleted && <CheckCircle className="h-4 w-4 text-emerald-600 ml-2" />}
         </div>
         
         {/* Show description for active stage */}
         {isActive && (
-          <p className="text-xs text-indigo-700 mt-1 animate-pulse">
+          <p className="text-xs text-teal-700 mt-1 animate-pulse">
             {description}
           </p>
         )}

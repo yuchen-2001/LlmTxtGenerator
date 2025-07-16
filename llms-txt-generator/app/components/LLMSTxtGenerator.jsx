@@ -268,7 +268,7 @@ const LLMSTxtGenerator = () => {
   const stats = getPageStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50 to-teal-50">
       <Toast {...toast} onClose={closeToast} />
       
       <div className="py-8 px-4 sm:px-6 lg:px-8">

@@ -20,14 +20,14 @@ const Preview = ({
       name: 'LLMs.txt', 
       extension: 'txt',
       description: 'Standard LLMs.txt format',
-      color: 'text-indigo-600 bg-indigo-50 border-indigo-200'
+      color: 'text-teal-600 bg-teal-50 border-teal-200'
     },
     { 
       id: 'json', 
       name: 'JSON', 
       extension: 'json',
       description: 'Structured JSON format',
-      color: 'text-green-600 bg-green-50 border-green-200'
+      color: 'text-emerald-600 bg-emerald-50 border-emerald-200'
     },
     { 
       id: 'yaml', 
@@ -273,12 +273,12 @@ metadata:
   const selectedFormatInfo = formats.find(f => f.id === selectedFormat);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md p-7 border border-stone-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div className="flex items-center">
-          <FileText className="h-6 w-6 text-indigo-600 mr-3" />
-          <h3 className="text-2xl font-semibold text-gray-900">Content Preview</h3>
+          <FileText className="h-6 w-6 text-teal-600 mr-3" />
+          <h3 className="text-2xl font-semibold text-stone-900">Content Preview</h3>
         </div>
         
         <div className="flex items-center space-x-3">
@@ -293,7 +293,7 @@ metadata:
             </button>
             
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-stone-200 z-10">
                 {formats.map((format) => (
                   <button
                     key={format.id}
@@ -301,14 +301,14 @@ metadata:
                       setSelectedFormat(format.id);
                       setIsDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors ${
-                      selectedFormat === format.id ? 'bg-gray-50' : ''
+                    className={`w-full text-left px-4 py-3 hover:bg-stone-50 first:rounded-t-lg last:rounded-b-lg transition-colors ${
+                      selectedFormat === format.id ? 'bg-stone-50' : ''
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-gray-900">{format.name}</div>
-                        <div className="text-sm text-gray-500">{format.description}</div>
+                        <div className="font-medium text-stone-900">{format.name}</div>
+                        <div className="text-sm text-stone-500">{format.description}</div>
                       </div>
                       <span className={`px-2 py-1 text-xs font-medium rounded border ${format.color}`}>
                         .{format.extension}
@@ -353,8 +353,8 @@ metadata:
       </div>
 
       {/* Preview Content */}
-      <div className="bg-gray-50 rounded-xl p-6 font-mono text-sm overflow-x-auto border border-gray-200 max-h-96">
-        <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+      <div className="bg-stone-50 rounded-xl p-6 font-mono text-sm overflow-x-auto border border-stone-200 max-h-96">
+        <pre className="whitespace-pre-wrap text-stone-800 leading-relaxed">
           {generateContent(selectedFormat)}
         </pre>
       </div>
