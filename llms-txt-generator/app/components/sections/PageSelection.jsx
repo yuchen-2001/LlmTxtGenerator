@@ -1,9 +1,14 @@
 'use client';
 
-import React from 'react';
-import { Database, CheckCircle, Search, Globe, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Database, CheckCircle, Search, Globe, ExternalLink, 
+  GripVertical, Tag, Filter, MoreHorizontal, Edit,
+  ChevronDown, Users, BookOpen, MessageSquare, FileText
+} from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { getCategoryColor } from '../design-system';
 
 const PageSelection = ({ 
   pages, 
@@ -11,60 +16,200 @@ const PageSelection = ({
   onToggleSelection, 
   onSelectAll, 
   onDeselectAll,
+  onReorderPages,
+  onBulkCategoryChange,
   searchTerm,
   onSearchChange,
   filteredPages 
 }) => {
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedForBulk, setSelectedForBulk] = useState(new Set());
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  const categories = [
+    { id: 'all', name: 'All Categories', icon: Filter, count: filteredPages.length },
+    { id: 'documentation', name: 'Documentation', icon: BookOpen, count: filteredPages.filter(p => p.category === 'documentation').length },
+    { id: 'support', name: 'Support', icon: MessageSquare, count: filteredPages.filter(p => p.category === 'support').length },
+    { id: 'community', name: 'Community', icon: Users, count: filteredPages.filter(p => p.category === 'community').length },
+    { id: 'blog', name: 'Blog', icon: FileText, count: filteredPages.filter(p => p.category === 'blog').length }
+  ];
+
+  const categoryChangeOptions = [
+    { id: 'documentation', name: 'Documentation', icon: BookOpen },
+    { id: 'support', name: 'Support', icon: MessageSquare },
+    { id: 'community', name: 'Community', icon: Users },
+    { id: 'blog', name: 'Blog', icon: FileText }
+  ];
+
+  // Filter pages by category
+  const categoryFilteredPages = filterCategory === 'all' 
+    ? filteredPages 
+    : filteredPages.filter(page => page.category === filterCategory);
+
+  // Drag and drop handlers
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      return;
+    }
+
+    // Reorder the pages
+    const newPages = [...pages];
+    const draggedPage = newPages[draggedIndex];
+    newPages.splice(draggedIndex, 1);
+    newPages.splice(dropIndex, 0, draggedPage);
+    
+    onReorderPages(newPages);
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  // Bulk operations
+  const toggleBulkMode = () => {
+    setBulkMode(!bulkMode);
+    setSelectedForBulk(new Set());
+  };
+
+  const toggleBulkSelection = (index) => {
+    const newSelected = new Set(selectedForBulk);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedForBulk(newSelected);
+  };
+
+  const handleBulkCategoryChange = (newCategory) => {
+    const indices = Array.from(selectedForBulk);
+    onBulkCategoryChange(indices, newCategory);
+    setSelectedForBulk(new Set());
+    setShowCategoryDropdown(false);
+  };
+
+  const selectAllInCategory = () => {
+    const indices = categoryFilteredPages.map((_, index) => pages.indexOf(pages[index]));
+    setSelectedForBulk(new Set(indices));
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <div className="flex items-center">
           <Database className="h-6 w-6 text-indigo-600 mr-3" />
           <h3 className="text-2xl font-semibold text-gray-900">
-            Found Pages ({filteredPages.length})
+            Found Pages ({categoryFilteredPages.length})
           </h3>
         </div>
         
         <div className="flex items-center space-x-4">
           <SelectedCounter selectedCount={selectedPages.size} />
+          <BulkModeToggle bulkMode={bulkMode} onToggle={toggleBulkMode} />
           <BulkActions onSelectAll={onSelectAll} onDeselectAll={onDeselectAll} />
         </div>
       </div>
 
-      {/* Search */}
-      <SearchInput 
-        searchTerm={searchTerm} 
-        onSearchChange={onSearchChange} 
-      />
+      {/* Filters and Search */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <SearchInput 
+          searchTerm={searchTerm} 
+          onSearchChange={onSearchChange} 
+        />
+        
+        <CategoryFilter 
+          categories={categories}
+          selectedCategory={filterCategory}
+          onCategoryChange={setFilterCategory}
+        />
+      </div>
+
+      {/* Bulk Operations Bar */}
+      {bulkMode && (
+        <BulkOperationsBar 
+          selectedCount={selectedForBulk.size}
+          onSelectAllInCategory={selectAllInCategory}
+          onBulkCategoryChange={handleBulkCategoryChange}
+          categoryOptions={categoryChangeOptions}
+          showDropdown={showCategoryDropdown}
+          onToggleDropdown={() => setShowCategoryDropdown(!showCategoryDropdown)}
+        />
+      )}
       
       {/* Pages List */}
-      <div className="grid gap-4">
-        {filteredPages.map((page, index) => {
+      <div className="space-y-3">
+        {categoryFilteredPages.map((page, index) => {
           const originalIndex = pages.indexOf(page);
           return (
-            <PageCard
+            <DraggablePageCard
               key={originalIndex}
               page={page}
+              index={originalIndex}
+              displayIndex={index}
               isSelected={selectedPages.has(originalIndex)}
+              isBulkSelected={selectedForBulk.has(originalIndex)}
+              bulkMode={bulkMode}
+              isDragging={draggedIndex === originalIndex}
               onToggle={() => onToggleSelection(originalIndex)}
+              onToggleBulk={() => toggleBulkSelection(originalIndex)}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
             />
           );
         })}
       </div>
 
-      {filteredPages.length === 0 && searchTerm && (
-        <EmptySearchState searchTerm={searchTerm} />
+      {/* Empty State */}
+      {categoryFilteredPages.length === 0 && (
+        <EmptySearchState 
+          searchTerm={searchTerm} 
+          filterCategory={filterCategory}
+          onClearFilters={() => {
+            onSearchChange('');
+            setFilterCategory('all');
+          }}
+        />
       )}
     </div>
   );
 };
 
+// Sub-components
 const SelectedCounter = ({ selectedCount }) => (
   <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
     <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
     {selectedCount} selected
   </div>
+);
+
+const BulkModeToggle = ({ bulkMode, onToggle }) => (
+  <Button
+    variant={bulkMode ? "primary" : "outline"}
+    size="sm"
+    onClick={onToggle}
+    icon={Edit}
+  >
+    {bulkMode ? 'Exit Bulk' : 'Bulk Edit'}
+  </Button>
 );
 
 const BulkActions = ({ onSelectAll, onDeselectAll }) => (
@@ -80,47 +225,140 @@ const BulkActions = ({ onSelectAll, onDeselectAll }) => (
 );
 
 const SearchInput = ({ searchTerm, onSearchChange }) => (
-  <div className="mb-6">
-    <Input
-      icon={Search}
-      placeholder="Search pages..."
-      value={searchTerm}
-      onChange={(e) => onSearchChange(e.target.value)}
-    />
+  <Input
+    icon={Search}
+    placeholder="Search pages..."
+    value={searchTerm}
+    onChange={(e) => onSearchChange(e.target.value)}
+  />
+);
+
+const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => (
+  <div className="relative">
+    <select 
+      value={selectedCategory}
+      onChange={(e) => onCategoryChange(e.target.value)}
+      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none bg-white"
+    >
+      {categories.map(category => (
+        <option key={category.id} value={category.id}>
+          {category.name} ({category.count})
+        </option>
+      ))}
+    </select>
+    <ChevronDown className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
   </div>
 );
 
-const PageCard = ({ page, isSelected, onToggle }) => {
-  const getCategoryColor = (category) => {
-    const colors = {
-      documentation: 'bg-blue-100 text-blue-800 border-blue-200',
-      support: 'bg-green-100 text-green-800 border-green-200',
-      community: 'bg-purple-100 text-purple-800 border-purple-200',
-      blog: 'bg-orange-100 text-orange-800 border-orange-200',
-      default: 'bg-gray-100 text-gray-800 border-gray-200'
-    };
-    return colors[category] || colors.default;
-  };
+const BulkOperationsBar = ({ 
+  selectedCount, 
+  onSelectAllInCategory, 
+  onBulkCategoryChange,
+  categoryOptions,
+  showDropdown,
+  onToggleDropdown 
+}) => (
+  <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+    <div className="flex items-center space-x-4">
+      <span className="text-sm font-medium text-indigo-900">
+        {selectedCount} pages selected for bulk edit
+      </span>
+      <Button variant="ghost" size="sm" onClick={onSelectAllInCategory}>
+        Select All Visible
+      </Button>
+    </div>
+    
+    {selectedCount > 0 && (
+      <div className="relative">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onToggleDropdown}
+          icon={Tag}
+        >
+          Change Category
+        </Button>
+        
+        {showDropdown && (
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+            {categoryOptions.map((option) => {
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => onBulkCategoryChange(option.id)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center"
+                >
+                  <Icon className="h-4 w-4 mr-3" />
+                  {option.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+);
 
+const DraggablePageCard = ({ 
+  page, 
+  index, 
+  displayIndex,
+  isSelected, 
+  isBulkSelected,
+  bulkMode,
+  isDragging,
+  onToggle, 
+  onToggleBulk,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd
+}) => {
+  const categoryColors = getCategoryColor(page.category);
+  
   return (
     <div
-      className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+      draggable={!bulkMode}
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, index)}
+      onDragEnd={onDragEnd}
+      className={`group relative p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+        isDragging ? 'opacity-50 rotate-2 scale-105' : ''
+      } ${
         isSelected
           ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+          : isBulkSelected
+          ? 'border-purple-500 bg-purple-50 shadow-sm'  
           : 'border-gray-200 hover:border-gray-300'
       }`}
-      onClick={onToggle}
+      onClick={bulkMode ? onToggleBulk : onToggle}
     >
       <div className="flex items-start space-x-4">
+        {/* Drag Handle */}
+        {!bulkMode && (
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+            <GripVertical className="h-5 w-5 text-gray-400" />
+          </div>
+        )}
+        
+        {/* Checkbox */}
         <input
           type="checkbox"
-          checked={isSelected}
-          onChange={onToggle}
-          className="mt-1 h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-colors"
+          checked={bulkMode ? isBulkSelected : isSelected}
+          onChange={bulkMode ? onToggleBulk : onToggle}
+          className={`mt-1 h-5 w-5 rounded transition-colors ${
+            bulkMode 
+              ? 'text-purple-600 focus:ring-purple-500 border-purple-300'
+              : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+          }`}
         />
         
+        {/* Content */}
         <div className="flex-1 min-w-0">
-          <PageHeader page={page} getCategoryColor={getCategoryColor} />
+          <PageHeader page={page} categoryColors={categoryColors} />
           <PageUrl url={page.url} />
           <PageDescription description={page.description} />
           <PageMetadata lastModified={page.lastModified} />
@@ -130,13 +368,13 @@ const PageCard = ({ page, isSelected, onToggle }) => {
   );
 };
 
-const PageHeader = ({ page, getCategoryColor }) => (
+const PageHeader = ({ page, categoryColors }) => (
   <div className="flex items-center justify-between mb-2">
     <div className="flex items-center space-x-3">
       <h4 className="text-lg font-semibold text-gray-900 truncate">
         {page.title}
       </h4>
-      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getCategoryColor(page.category)}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${categoryColors.bg} ${categoryColors.text} ${categoryColors.border}`}>
         {page.category}
       </span>
     </div>
@@ -163,13 +401,21 @@ const PageMetadata = ({ lastModified }) => (
   )
 );
 
-const EmptySearchState = ({ searchTerm }) => (
-  <div className="text-center py-8">
-    <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+const EmptySearchState = ({ searchTerm, filterCategory, onClearFilters }) => (
+  <div className="text-center py-12">
+    <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
     <h3 className="text-lg font-semibold text-gray-900 mb-2">No pages found</h3>
-    <p className="text-gray-600">
-      No pages match your search for "{searchTerm}". Try different keywords.
+    <p className="text-gray-600 mb-4">
+      {searchTerm || filterCategory !== 'all' 
+        ? `No pages match your current filters.`
+        : 'No pages available to display.'
+      }
     </p>
+    {(searchTerm || filterCategory !== 'all') && (
+      <Button variant="outline" size="sm" onClick={onClearFilters}>
+        Clear Filters
+      </Button>
+    )}
   </div>
 );
 

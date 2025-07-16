@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { components } from '../design-system';
 
 const Button = ({ 
   children, 
@@ -12,24 +13,44 @@ const Button = ({
   size = 'md',
   icon: Icon,
   className = '',
+  fullWidth = false,
   ...props 
 }) => {
+  // Get design tokens from design system
+  const sizeConfig = components.button.sizes[size];
+  const variantConfig = components.button.variants[variant];
+  
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
-  const variants = {
-    primary: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 focus:ring-indigo-500',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500',
-    outline: 'border-2 border-gray-300 text-gray-700 hover:border-gray-400 focus:ring-gray-500',
-    ghost: 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 focus:ring-indigo-500'
+  const sizeStyles = `${sizeConfig.padding} ${sizeConfig.fontSize} ${sizeConfig.gap} ${sizeConfig.minWidth || ''}`;
+  
+  const variantStyles = `${variantConfig.base} ${variantConfig.hover} ${variantConfig.focus}`;
+  
+  const fullWidthStyle = fullWidth ? 'w-full' : '';
+  
+  const buttonClasses = `${baseStyles} ${sizeStyles} ${variantStyles} ${fullWidthStyle} ${className}`;
+
+  const getIconSize = () => {
+    switch (size) {
+      case 'sm': return 'h-3 w-3';
+      case 'lg': return 'h-5 w-5';
+      default: return 'h-4 w-4';
+    }
   };
 
-  const sizes = {
-    sm: 'px-3 py-2 text-sm space-x-1',
-    md: 'px-6 py-3 text-base space-x-2',
-    lg: 'px-8 py-4 text-lg space-x-2 min-w-[140px]'
-  };
+  const LoadingContent = () => (
+    <>
+      <Loader2 className={`${getIconSize()} animate-spin`} />
+      <span>Loading...</span>
+    </>
+  );
 
-  const buttonClasses = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
+  const DefaultContent = () => (
+    <>
+      {Icon && <Icon className={getIconSize()} />}
+      {children}
+    </>
+  );
 
   return (
     <button
@@ -38,19 +59,15 @@ const Button = ({
       className={buttonClasses}
       {...props}
     >
-      {loading ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Loading...</span>
-        </>
-      ) : (
-        <>
-          {Icon && <Icon className="h-4 w-4" />}
-          {children}
-        </>
-      )}
+      {loading ? <LoadingContent /> : <DefaultContent />}
     </button>
   );
 };
+
+// Button variants for specific use cases
+export const PrimaryButton = (props) => <Button variant="primary" {...props} />;
+export const SecondaryButton = (props) => <Button variant="secondary" {...props} />;
+export const OutlineButton = (props) => <Button variant="outline" {...props} />;
+export const GhostButton = (props) => <Button variant="ghost" {...props} />;
 
 export default Button;

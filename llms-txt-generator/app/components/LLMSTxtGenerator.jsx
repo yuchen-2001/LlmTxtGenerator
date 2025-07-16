@@ -11,7 +11,7 @@ import UrlInput from './sections/UrlInput';
 import LoadingState from './sections/LoadingState';
 import SiteConfig from './sections/SiteConfig';
 import PageSelection from './sections/PageSelection';
-import Preview from './sections/EnhancedPreview';
+import Preview from './sections/Preview';
 import EmptyState from './sections/EmptyState';
 import Footer from './sections/Footer';
 
@@ -58,6 +58,20 @@ const mockCrawledPages = [
     description: "Latest news, feature releases, and company announcements.",
     category: "blog",
     lastModified: "2024-01-14"
+  },
+  {
+    url: "https://example.com/about/team",
+    title: "About Our Team",
+    description: "Meet the people behind the platform and learn about our mission and values.",
+    category: "support",
+    lastModified: "2024-01-07"
+  },
+  {
+    url: "https://example.com/blog/roadmap-2024",
+    title: "2024 Product Roadmap",
+    description: "Exciting new features and improvements coming throughout 2024.",
+    category: "blog",
+    lastModified: "2024-01-13"
   }
 ];
 
@@ -126,7 +140,7 @@ const LLMSTxtGenerator = () => {
       const cleanDomain = domain.replace('www.', '').replace('.com', '');
       setSiteName(cleanDomain.charAt(0).toUpperCase() + cleanDomain.slice(1));
       setSiteDescription(`Official documentation and resources for ${domain}`);
-      setPages(mockCrawledPages);
+      setPages([...mockCrawledPages]);
       setSelectedPages(new Set(mockCrawledPages.map((_, index) => index)));
       setShowPreview(true);
       
@@ -166,6 +180,24 @@ const LLMSTxtGenerator = () => {
 
   const deselectAllPages = () => {
     setSelectedPages(new Set());
+  };
+
+  // New: Page reordering handler
+  const handleReorderPages = (newPages) => {
+    setPages(newPages);
+    showToast('Pages reordered successfully!', 'success');
+  };
+
+  // New: Bulk category change handler
+  const handleBulkCategoryChange = (indices, newCategory) => {
+    const newPages = [...pages];
+    indices.forEach(index => {
+      if (newPages[index]) {
+        newPages[index] = { ...newPages[index], category: newCategory };
+      }
+    });
+    setPages(newPages);
+    showToast(`Updated ${indices.length} pages to ${newCategory} category!`, 'success');
   };
 
   // Filter pages based on search
@@ -218,6 +250,22 @@ const LLMSTxtGenerator = () => {
     return contentTypes[format] || 'text/plain';
   };
 
+  // Statistics for enhanced UI
+  const getPageStats = () => {
+    const categoryStats = pages.reduce((acc, page) => {
+      acc[page.category] = (acc[page.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      total: pages.length,
+      selected: selectedPages.size,
+      categories: categoryStats
+    };
+  };
+
+  const stats = getPageStats();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Toast {...toast} onClose={closeToast} />
@@ -239,6 +287,32 @@ const LLMSTxtGenerator = () => {
 
           {showPreview && pages.length > 0 && (
             <div className="space-y-8">
+              {/* Stats Summary */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <StatCard 
+                    label="Total Pages" 
+                    value={stats.total}
+                    color="text-blue-600"
+                  />
+                  <StatCard 
+                    label="Selected" 
+                    value={stats.selected}
+                    color="text-green-600"
+                  />
+                  <StatCard 
+                    label="Documentation" 
+                    value={stats.categories.documentation || 0}
+                    color="text-indigo-600"
+                  />
+                  <StatCard 
+                    label="Support" 
+                    value={stats.categories.support || 0}
+                    color="text-purple-600"
+                  />
+                </div>
+              </div>
+
               <SiteConfig
                 siteName={siteName}
                 siteDescription={siteDescription}
@@ -252,6 +326,8 @@ const LLMSTxtGenerator = () => {
                 onToggleSelection={togglePageSelection}
                 onSelectAll={selectAllPages}
                 onDeselectAll={deselectAllPages}
+                onReorderPages={handleReorderPages}
+                onBulkCategoryChange={handleBulkCategoryChange}
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
                 filteredPages={filteredPages}
@@ -275,5 +351,13 @@ const LLMSTxtGenerator = () => {
     </div>
   );
 };
+
+// Stats Card Component
+const StatCard = ({ label, value, color }) => (
+  <div className="text-center">
+    <div className={`text-2xl font-bold ${color}`}>{value}</div>
+    <div className="text-sm text-gray-600">{label}</div>
+  </div>
+);
 
 export default LLMSTxtGenerator;
