@@ -20,41 +20,53 @@ const UrlInput = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md p-7 mb-8 border border-stone-200">
       <div className="flex items-center mb-6">
-        <Globe className="h-6 w-6 text-indigo-600 mr-3" />
-        <h2 className="text-2xl font-semibold text-gray-900">Analyze Website</h2>
+        <Globe className="h-6 w-6 text-teal-600 mr-3" />
+        <h2 className="text-2xl font-semibold text-stone-900">Analyze Website</h2>
       </div>
       
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Input
-            label="Website URL"
-            type="url"
-            value={url}
-            onChange={(e) => onUrlChange(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="https://your-website.com"
-            error={urlError}
-            disabled={isLoading}
-            className="text-lg py-4"
-            containerClassName="flex-1"
-          />
-          
-          <div className="flex items-end">
-            <Button
-              onClick={onAnalyze}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Website URL
+          </label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => onUrlChange(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="https://your-website.com"
               disabled={isLoading}
-              loading={isLoading}
-              variant="primary"
-              size="lg"
-              icon={Search}
-            >
-              {isLoading ? 'Analyzing' : 'Analyze'}
-            </Button>
+              className="text-lg py-4"
+              containerClassName="flex-1"
+            />
+            
+            <div className="flex items-center">
+              <Button
+                onClick={onAnalyze}
+                disabled={isLoading}
+                loading={isLoading}
+                variant="primary"
+                size="lg"
+                icon={Search}
+              >
+                {isLoading ? 'Analyzing' : 'Analyze'}
+              </Button>
+            </div>
           </div>
+          
+          {/* URL error message outside the flex container */}
+          {urlError && (
+            <div className="mt-3 flex items-center text-red-600">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <span className="text-sm font-medium">{urlError}</span>
+            </div>
+          )}
         </div>
 
+        {/* General error message */}
         {error && (
           <div className="flex items-center p-4 bg-red-50 border-2 border-red-200 rounded-xl">
             <AlertCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0" />
