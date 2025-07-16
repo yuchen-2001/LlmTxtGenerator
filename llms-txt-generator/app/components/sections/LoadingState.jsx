@@ -1,15 +1,79 @@
 'use client';
 
-import React from 'react';
-import { Globe, Database, Search, Sparkles, CheckCircle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Globe, Database, Search, Sparkles, CheckCircle, Loader2, Clock, Wifi } from 'lucide-react';
 
 const LoadingState = ({ stage }) => {
-  const stages = [
-    { label: "Connecting to website", icon: Globe },
-    { label: "Analyzing page structure", icon: Database },
-    { label: "Extracting metadata", icon: Search },
-    { label: "Generating preview", icon: Sparkles }
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [tips, setTips] = useState(0);
+
+  // Loading tips to show users
+  const loadingTips = [
+    "We're analyzing your website structure and extracting metadata...",
+    "This process helps AI models understand your content better.",
+    "The generated llms.txt file will be optimized for LLM consumption.",
+    "You can customize the results after analysis completes."
   ];
+
+  const stages = [
+    { 
+      label: "Connecting to website", 
+      icon: Wifi,
+      description: "Establishing connection and checking accessibility"
+    },
+    { 
+      label: "Analyzing page structure", 
+      icon: Database,
+      description: "Discovering pages and navigation patterns"
+    },
+    { 
+      label: "Extracting metadata", 
+      icon: Search,
+      description: "Gathering titles, descriptions, and content information"
+    },
+    { 
+      label: "Generating preview", 
+      icon: Sparkles,
+      description: "Creating your customized llms.txt structure"
+    }
+  ];
+
+  // Timer for elapsed time (resets when component mounts)
+  useEffect(() => {
+    setElapsedTime(0); // Reset timer when loading starts
+    
+    const timer = setInterval(() => {
+      setElapsedTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []); // Only run once when component mounts
+
+  // Rotate tips every 2.5 seconds to fit within 3-second window
+  useEffect(() => {
+    setTips(0); // Reset tips when loading starts
+    
+    const tipTimer = setInterval(() => {
+      setTips(prev => (prev + 1) % loadingTips.length);
+    }, 2500); // Slightly faster rotation to fit 3 seconds
+
+    return () => clearInterval(tipTimer);
+  }, []);
+
+  const formatTime = (seconds) => {
+    return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
+  };
+
+  // Calculate progress percentage based on stage (0-3) and elapsed time
+  const getProgressPercentage = () => {
+    // Each stage represents 25% progress
+    const stageProgress = (stage / 4) * 100;
+    
+    // Add a small time-based progress within current stage (max 6.25% per stage)
+    const timeProgress = Math.min((elapsedTime * 2), 25); // Caps at 25% from time
+    
+    return Math.min(stageProgress + (timeProgress / 4), 100);
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
@@ -22,15 +86,26 @@ const LoadingState = ({ stage }) => {
           </div>
         </div>
         
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Analyzing Website
-        </h3>
-        <p className="text-gray-600 mb-6">
-          We're crawling your website to extract page information and metadata...
-        </p>
+        {/* Title and Timer */}
+        <div className="mb-2">
+          <h3 className="text-xl font-semibold text-gray-900">
+            Analyzing Website
+          </h3>
+          <div className="flex items-center justify-center mt-2 text-sm text-gray-500">
+            <Clock className="h-4 w-4 mr-1" />
+            <span>{formatTime(elapsedTime)}</span>
+          </div>
+        </div>
+
+        {/* Dynamic Tips */}
+        <div className="mb-6 h-12 flex items-center justify-center">
+          <p className="text-gray-600 text-sm max-w-md transition-opacity duration-500">
+            {loadingTips[tips]}
+          </p>
+        </div>
 
         {/* Progress Stages */}
-        <div className="space-y-3 max-w-md mx-auto">
+        <div className="space-y-3 max-w-md mx-auto mb-6">
           {stages.map((stageItem, index) => {
             const Icon = stageItem.icon;
             const isActive = index === stage;
@@ -41,6 +116,7 @@ const LoadingState = ({ stage }) => {
                 key={index}
                 icon={Icon}
                 label={stageItem.label}
+                description={stageItem.description}
                 isActive={isActive}
                 isCompleted={isCompleted}
               />
@@ -49,24 +125,34 @@ const LoadingState = ({ stage }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-6 w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div 
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${((stage + 1) / stages.length) * 100}%` }}
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${getProgressPercentage()}%` }}
           />
+        </div>
+
+        {/* Progress Percentage */}
+        <div className="text-sm text-gray-500">
+          {Math.round(getProgressPercentage())}% Complete
+        </div>
+
+        {/* Expected completion time */}
+        <div className="mt-4 text-xs text-gray-400">
+          Analysis typically completes in 3 seconds
         </div>
       </div>
     </div>
   );
 };
 
-const StageItem = ({ icon: Icon, label, isActive, isCompleted }) => {
+const StageItem = ({ icon: Icon, label, description, isActive, isCompleted }) => {
   const getStageStyles = () => {
     if (isActive) {
-      return 'bg-indigo-50 border-2 border-indigo-200';
+      return 'bg-indigo-50 border-2 border-indigo-200 shadow-sm';
     }
     if (isCompleted) {
-      return 'bg-green-50 border-2 border-green-200';
+      return 'bg-green-50 border-2 border-green-200 shadow-sm';
     }
     return 'bg-gray-50 border-2 border-gray-200';
   };
@@ -84,19 +170,31 @@ const StageItem = ({ icon: Icon, label, isActive, isCompleted }) => {
   };
 
   return (
-    <div className={`flex items-center p-3 rounded-lg transition-all duration-300 ${getStageStyles()}`}>
-      {isCompleted ? (
-        <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-      ) : (
-        <Icon className={`h-5 w-5 mr-3 ${getIconStyles()}`} />
-      )}
+    <div className={`flex items-start p-3 rounded-lg transition-all duration-300 ${getStageStyles()}`}>
+      <div className="flex-shrink-0 mr-3 mt-0.5">
+        {isCompleted ? (
+          <CheckCircle className="h-5 w-5 text-green-600" />
+        ) : (
+          <Icon className={`h-5 w-5 ${getIconStyles()}`} />
+        )}
+      </div>
       
-      <span className={`text-sm font-medium ${getTextStyles()}`}>
-        {label}
-      </span>
-      
-      {isActive && <Loader2 className="h-4 w-4 animate-spin text-indigo-600 ml-auto" />}
-      {isCompleted && <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className={`text-sm font-medium ${getTextStyles()}`}>
+            {label}
+          </span>
+          {isActive && <Loader2 className="h-4 w-4 animate-spin text-indigo-600 ml-2" />}
+          {isCompleted && <CheckCircle className="h-4 w-4 text-green-600 ml-2" />}
+        </div>
+        
+        {/* Show description for active stage */}
+        {isActive && (
+          <p className="text-xs text-indigo-700 mt-1 animate-pulse">
+            {description}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

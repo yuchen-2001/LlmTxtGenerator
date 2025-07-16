@@ -15,66 +15,6 @@ import Preview from './sections/Preview';
 import EmptyState from './sections/EmptyState';
 import Footer from './sections/Footer';
 
-// Mock data
-const mockCrawledPages = [
-  {
-    url: "https://example.com/docs/getting-started",
-    title: "Getting Started Guide",
-    description: "Complete guide to help new users get started with the platform quickly and effectively.",
-    category: "documentation",
-    lastModified: "2024-01-15"
-  },
-  {
-    url: "https://example.com/docs/api-reference",
-    title: "API Reference",
-    description: "Comprehensive API documentation with endpoints, authentication, and examples.",
-    category: "documentation",
-    lastModified: "2024-01-10"
-  },
-  {
-    url: "https://example.com/docs/tutorials",
-    title: "Step-by-Step Tutorials",
-    description: "Detailed tutorials covering basic to advanced implementation scenarios.",
-    category: "documentation",
-    lastModified: "2024-01-12"
-  },
-  {
-    url: "https://example.com/support/faq",
-    title: "Frequently Asked Questions",
-    description: "Common questions and answers about the platform and its features.",
-    category: "support",
-    lastModified: "2024-01-08"
-  },
-  {
-    url: "https://example.com/community/forums",
-    title: "Community Forums",
-    description: "Connect with other users, share ideas, and get help from the community.",
-    category: "community",
-    lastModified: "2024-01-05"
-  },
-  {
-    url: "https://example.com/blog/updates",
-    title: "Product Updates Blog",
-    description: "Latest news, feature releases, and company announcements.",
-    category: "blog",
-    lastModified: "2024-01-14"
-  },
-  {
-    url: "https://example.com/about/team",
-    title: "About Our Team",
-    description: "Meet the people behind the platform and learn about our mission and values.",
-    category: "support",
-    lastModified: "2024-01-07"
-  },
-  {
-    url: "https://example.com/blog/roadmap-2024",
-    title: "2024 Product Roadmap",
-    description: "Exciting new features and improvements coming throughout 2024.",
-    category: "blog",
-    lastModified: "2024-01-13"
-  }
-];
-
 const LLMSTxtGenerator = () => {
   // State management
   const [url, setUrl] = useState('');
@@ -89,6 +29,7 @@ const LLMSTxtGenerator = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState({ message: '', type: '', isVisible: false });
   const [urlError, setUrlError] = useState('');
+  const [analysisMetadata, setAnalysisMetadata] = useState(null);
 
   // URL validation
   const validateUrl = (urlString) => {
@@ -111,7 +52,7 @@ const LLMSTxtGenerator = () => {
     }
   };
 
-  // Simulate API call with loading stages
+  // Real API call with guaranteed 3-second loading experience
   const handleAnalyzeWebsite = async () => {
     if (!validateUrl(url)) return;
 
@@ -120,33 +61,94 @@ const LLMSTxtGenerator = () => {
     setPages([]);
     setShowPreview(false);
     setLoadingStage(0);
+    setAnalysisMetadata(null);
 
     try {
-      // Simulate different stages with delays
-      const stages = [
-        { delay: 800, action: () => setLoadingStage(1) },
-        { delay: 1200, action: () => setLoadingStage(2) },
-        { delay: 1000, action: () => setLoadingStage(3) },
-        { delay: 800, action: () => {} }
-      ];
+      // Start the progressive loading animation with exact timing
+      // Total duration: 3 seconds, 4 stages = 750ms per stage
+      const stageTimings = [750, 750, 750, 750]; // Each stage gets equal time
+      let currentStage = 0;
 
-      for (let i = 0; i < stages.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, stages[i].delay));
-        stages[i].action();
+      // Progress through stages while API call happens
+      const progressStages = () => {
+        const stageInterval = setInterval(() => {
+          if (currentStage < 4) {
+            setLoadingStage(currentStage);
+            currentStage++;
+          } else {
+            clearInterval(stageInterval);
+          }
+        }, 750); // 750ms per stage = 3 seconds total
+
+        return stageInterval;
+      };
+
+      // Start both the loading animation and API call simultaneously
+      const stageInterval = progressStages();
+      
+      const apiCall = fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      // Wait for API call to complete (backend ensures 3-second minimum)
+      const response = await apiCall;
+      
+      // Clear the stage interval since backend timing is guaranteed
+      clearInterval(stageInterval);
+      
+      // Ensure we're at the final stage
+      setLoadingStage(3);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
-      // Mock successful response
-      const domain = new URL(url).hostname;
-      const cleanDomain = domain.replace('www.', '').replace('.com', '');
-      setSiteName(cleanDomain.charAt(0).toUpperCase() + cleanDomain.slice(1));
-      setSiteDescription(`Official documentation and resources for ${domain}`);
-      setPages([...mockCrawledPages]);
-      setSelectedPages(new Set(mockCrawledPages.map((_, index) => index)));
-      setShowPreview(true);
-      
-      showToast('Website analyzed successfully!', 'success');
+      const result = await response.json();
+
+      // Process the successful response
+      if (result.success && result.pages) {
+        // Extract site info from first page or use domain
+        const domain = result.metadata?.domain || new URL(url).hostname;
+        const cleanDomain = domain.replace('www.', '').replace('.com', '');
+        
+        setSiteName(cleanDomain.charAt(0).toUpperCase() + cleanDomain.slice(1));
+        setSiteDescription(result.pages[0]?.description || `Official documentation and resources for ${domain}`);
+        setPages(result.pages);
+        setSelectedPages(new Set(result.pages.map((_, index) => index)));
+        setAnalysisMetadata(result.metadata);
+        setShowPreview(true);
+        
+        // Show success message with additional info
+        const message = result.metadata?.hasRealData 
+          ? 'Website analyzed successfully with real data!'
+          : 'Website analyzed successfully with smart mock data!';
+        showToast(message, 'success');
+      } else {
+        throw new Error('Invalid response format from server');
+      }
+
     } catch (err) {
-      setError('Failed to analyze website. Please try again.');
+      console.error('Analysis failed:', err);
+      
+      // Handle different types of errors
+      let errorMessage = 'Failed to analyze website. ';
+      
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        errorMessage += 'Network connection failed. Please check your internet connection.';
+      } else if (err.message.includes('timeout')) {
+        errorMessage += 'Request timed out. The website might be slow to respond.';
+      } else if (err.message.includes('Invalid URL')) {
+        errorMessage += 'The URL appears to be invalid or inaccessible.';
+      } else {
+        errorMessage += err.message || 'Please try again.';
+      }
+      
+      setError(errorMessage);
       showToast('Analysis failed. Please try again.', 'error');
     } finally {
       setIsLoading(false);
@@ -182,13 +184,13 @@ const LLMSTxtGenerator = () => {
     setSelectedPages(new Set());
   };
 
-  // New: Page reordering handler
+  // Page reordering handler
   const handleReorderPages = (newPages) => {
     setPages(newPages);
     showToast('Pages reordered successfully!', 'success');
   };
 
-  // New: Bulk category change handler
+  // Bulk category change handler
   const handleBulkCategoryChange = (indices, newCategory) => {
     const newPages = [...pages];
     indices.forEach(index => {
@@ -287,9 +289,9 @@ const LLMSTxtGenerator = () => {
 
           {showPreview && pages.length > 0 && (
             <div className="space-y-8">
-              {/* Stats Summary */}
+              {/* Enhanced Stats Summary with Analysis Info */}
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <StatCard 
                     label="Total Pages" 
                     value={stats.total}
@@ -311,6 +313,24 @@ const LLMSTxtGenerator = () => {
                     color="text-purple-600"
                   />
                 </div>
+                
+                {/* Analysis Metadata */}
+                {analysisMetadata && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>
+                        Analyzed: {new Date(analysisMetadata.analyzedAt).toLocaleString()}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        analysisMetadata.hasRealData 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {analysisMetadata.hasRealData ? 'Real Data' : 'Smart Mock'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <SiteConfig
@@ -352,7 +372,7 @@ const LLMSTxtGenerator = () => {
   );
 };
 
-// Stats Card Component
+// Enhanced Stats Card Component
 const StatCard = ({ label, value, color }) => (
   <div className="text-center">
     <div className={`text-2xl font-bold ${color}`}>{value}</div>
