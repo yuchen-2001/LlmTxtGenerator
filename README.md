@@ -42,19 +42,19 @@ npm run build
 npm start
 ```
 
-## Key Features Implemented
+## Key Features Demo
 
-### Frontend Architecture
-- Component-based design
-- Custom design system with consistent theming
-- Responsive layout that works both on mobile and desktop
-- Loading states and error handling throughout
+![Search URL](./assets/demos/Search.gif)
+*Search Functionality with real-time form validation with error messages.*
 
-### User Experience
-- 3-second guaranteed loading animation for consistency
-- Real-time form validation with error messages
-- Toast notifications for feedback
-- Drag-and-drop page reordering
-- Bulk selection and category editing
+![Loading Animation](./assets/demos/loadingAnimation.gif)
+*3-second guaranteed loading animation for consistency.*
 
 
+![Bulk Selection](./assets/demos/BulkSelect.gif)
+*Bulk editing and category editing in action.*
+
+![Drag Drop, Toast Notifications, and Output Formats](./assets/demos/DragDropAndOutput.gif)
+*Drag-and-drop reordering and output; Toast notifications for feedback; Multiple Output formats with download and copy options.*
+
+![Full Demo](./assets/demos/fullDemo.gif)
