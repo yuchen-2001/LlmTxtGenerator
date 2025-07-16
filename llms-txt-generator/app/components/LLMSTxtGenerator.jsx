@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { FileText } from 'lucide-react';
 
 // UI Components
 import Toast from './ui/Toast';
@@ -30,6 +31,12 @@ const LLMSTxtGenerator = () => {
   const [toast, setToast] = useState({ message: '', type: '', isVisible: false });
   const [urlError, setUrlError] = useState('');
   const [analysisMetadata, setAnalysisMetadata] = useState(null);
+  const [showLoader, setShowLoader] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoader(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // URL validation
   const validateUrl = (urlString) => {
@@ -266,7 +273,21 @@ const LLMSTxtGenerator = () => {
   };
 
   const stats = getPageStats();
-
+  if (showLoader) {
+    return (
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div className="text-center animate-fadeIn">
+          <FileText className="h-20 w-20 text-teal-600 mx-auto mb-4 animate-pulse" />
+          <h1 className="text-3xl font-bold text-stone-900 animate-slideUp">
+            LLMs.txt Generator
+          </h1>
+          <p className="text-stone-600 mt-2 animate-slideUp" style={{animationDelay: '0.3s'}}>
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50 to-teal-50">
       <Toast {...toast} onClose={closeToast} />
