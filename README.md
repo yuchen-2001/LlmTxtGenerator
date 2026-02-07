@@ -1,6 +1,6 @@
 # LLMs.txt Generator
 
-A web application that helps create llms.txt files for websites to improve AI/LLM compatibility. Built for Profound's Frontend Developer Task.
+A web application that helps create llms.txt files for websites to improve AI/LLM compatibility.
 
 The website analysis currently uses smart mock data generation based on domain patterns (since I focused primarily on frontend architecture and abstracted the backend complexity), but the API structure is designed to easily integrate real web crawling services.
 
